@@ -19,6 +19,10 @@ public class Main {
         presence.setState("yes");
         presence.setLargeImage("a", "Large image");
         presence.setSmallImage("b", "Small image");
+        presence.setButtons(
+                new RichPresence.Button("test1","https://example1.com"),
+                new RichPresence.Button("test2","https://example2.com")
+        );
         presence.setStart(Instant.now().getEpochSecond());
         DiscordIPC.setActivity(presence);
 

@@ -1,5 +1,6 @@
 package meteordevelopment.discordipc;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class RichPresence {
@@ -8,6 +9,7 @@ public class RichPresence {
 
     private Assets assets;
     private Timestamps timestamps;
+    private Button[] buttons;
 
     public void setDetails(String details) {
         this.details = details;
@@ -39,6 +41,20 @@ public class RichPresence {
         timestamps.end = time;
     }
 
+    public void setButtons(Button... buttons) {
+        if (buttons != null && buttons.length > 2) {
+            Button[] limited = new Button[2];
+            System.arraycopy(buttons, 0, limited, 0, 2);
+            this.buttons = limited;
+        } else {
+            this.buttons = buttons;
+        }
+    }
+
+    public void clearButtons() {
+        this.buttons = null;
+    }
+
     public JsonObject toJson() {
         // Main
         JsonObject o = new JsonObject();
@@ -68,6 +84,24 @@ public class RichPresence {
             o.add("timestamps", t);
         }
 
+        // Buttons
+        if (buttons != null && buttons.length > 0) {
+            JsonArray arr = new JsonArray();
+            for (Button b : buttons) {
+                if (b == null) continue;
+                if (b.label == null || b.label.isEmpty()) continue;
+                if (b.url == null || b.url.isEmpty()) continue;
+
+                JsonObject jb = new JsonObject();
+                jb.addProperty("label", b.label);
+                jb.addProperty("url", b.url);
+                arr.add(jb);
+            }
+            if (!arr.isEmpty()) {
+                o.add("buttons", arr);
+            }
+        }
+
         return o;
     }
 
@@ -79,5 +113,15 @@ public class RichPresence {
     public static class Timestamps {
         public Long start;
         public Long end;
+    }
+
+    public static class Button {
+        public String label;
+        public String url;
+
+        public Button(String label, String url) {
+            this.label = label;
+            this.url = url;
+        }
     }
 }
