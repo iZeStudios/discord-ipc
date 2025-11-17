@@ -3,13 +3,15 @@ package meteordevelopment.discordipc;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import java.util.HashSet;
+
 public class RichPresence {
     private String details;
     private String state;
 
     private Assets assets;
     private Timestamps timestamps;
-    private Button[] buttons;
+    private HashSet<Button> buttons;
 
     public void setDetails(String details) {
         this.details = details;
@@ -41,14 +43,23 @@ public class RichPresence {
         timestamps.end = time;
     }
 
-    public void setButtons(Button... buttons) {
-        if (buttons != null && buttons.length > 2) {
-            Button[] limited = new Button[2];
-            System.arraycopy(buttons, 0, limited, 0, 2);
-            this.buttons = limited;
-        } else {
-            this.buttons = buttons;
-        }
+    public void setButtons(String firstLabel, String firstUrl) {
+        if (buttons == null) buttons = new HashSet<>();
+        buttons.add(new Button() {{
+            label_1 = firstLabel;
+            url_1 = firstUrl;
+
+        }});
+    }
+
+    public void setButtons(String firstLabel, String firstUrl, String secondLabel, String secondUrl) {
+        if (buttons == null) buttons = new HashSet<>();
+        buttons.add(new Button() {{
+            label_1 = firstLabel;
+            url_1 = firstUrl;
+            label_2 = secondLabel;
+            url_2 = secondUrl;
+        }});
     }
 
     public void clearButtons() {
@@ -85,18 +96,25 @@ public class RichPresence {
         }
 
         // Buttons
-        if (buttons != null && buttons.length > 0) {
+        if (buttons != null && !buttons.isEmpty()) {
             JsonArray arr = new JsonArray();
-            for (Button b : buttons) {
-                if (b == null) continue;
-                if (b.label == null || b.label.isEmpty()) continue;
-                if (b.url == null || b.url.isEmpty()) continue;
 
-                JsonObject jb = new JsonObject();
-                jb.addProperty("label", b.label);
-                jb.addProperty("url", b.url);
-                arr.add(jb);
+            Button b = buttons.iterator().next();
+
+            if (b.label_1 != null && b.url_1 != null) {
+                JsonObject b1 = new JsonObject();
+                b1.addProperty("label", b.label_1);
+                b1.addProperty("url", b.url_1);
+                arr.add(b1);
             }
+
+            if (b.label_2 != null && b.url_2 != null) {
+                JsonObject b2 = new JsonObject();
+                b2.addProperty("label", b.label_2);
+                b2.addProperty("url", b.url_2);
+                arr.add(b2);
+            }
+
             if (!arr.isEmpty()) {
                 o.add("buttons", arr);
             }
@@ -116,12 +134,7 @@ public class RichPresence {
     }
 
     public static class Button {
-        public String label;
-        public String url;
-
-        public Button(String label, String url) {
-            this.label = label;
-            this.url = url;
-        }
+        public String label_1, url_1;
+        public String label_2, url_2;
     }
 }
