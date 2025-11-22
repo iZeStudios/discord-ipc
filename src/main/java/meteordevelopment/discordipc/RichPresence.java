@@ -1,5 +1,6 @@
 package meteordevelopment.discordipc;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class RichPresence {
@@ -8,6 +9,7 @@ public class RichPresence {
 
     private Assets assets;
     private Timestamps timestamps;
+    private Buttons buttons;
 
     public void setDetails(String details) {
         this.details = details;
@@ -39,6 +41,25 @@ public class RichPresence {
         timestamps.end = time;
     }
 
+    public void setButtons(String firstLabel, String firstUrl) {
+        if (buttons == null) buttons = new Buttons();
+        buttons.label_1 = firstLabel;
+        buttons.url_1 = firstUrl;
+    }
+
+    public void setButtons(String firstLabel, String firstUrl, String secondLabel, String secondUrl) {
+        if (buttons == null) buttons = new Buttons();
+
+        buttons.label_1 = firstLabel;
+        buttons.url_1 = firstUrl;
+        buttons.label_2 = secondLabel;
+        buttons.url_2 = secondUrl;
+    }
+
+    public void clearButtons() {
+        this.buttons = null;
+    }
+
     public JsonObject toJson() {
         // Main
         JsonObject o = new JsonObject();
@@ -68,6 +89,30 @@ public class RichPresence {
             o.add("timestamps", t);
         }
 
+        // Buttons
+        if (buttons != null) {
+            JsonArray arr = new JsonArray();
+
+
+            if (buttons.label_1 != null && buttons.url_1 != null) {
+                JsonObject b1 = new JsonObject();
+                b1.addProperty("label", buttons.label_1);
+                b1.addProperty("url", buttons.url_1);
+                arr.add(b1);
+            }
+
+            if (buttons.label_2 != null && buttons.url_2 != null) {
+                JsonObject b2 = new JsonObject();
+                b2.addProperty("label", buttons.label_2);
+                b2.addProperty("url", buttons.url_2);
+                arr.add(b2);
+            }
+
+            if (!arr.isEmpty()) {
+                o.add("buttons", arr);
+            }
+        }
+
         return o;
     }
 
@@ -79,5 +124,10 @@ public class RichPresence {
     public static class Timestamps {
         public Long start;
         public Long end;
+    }
+
+    public static class Buttons {
+        public String label_1, url_1;
+        public String label_2, url_2;
     }
 }
